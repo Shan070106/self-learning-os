@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import TopicTree from "../topics/TopicTree"
 
 interface Subject {
   id: string
@@ -13,6 +14,7 @@ export default function SubjectList() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null)
   
   // Form state
   const [name, setName] = useState("")
@@ -79,6 +81,31 @@ export default function SubjectList() {
     return (
       <div className="flex justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    )
+  }
+
+  if (selectedSubject) {
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+        <div className="flex items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+          <button
+            onClick={() => setSelectedSubject(null)}
+            className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedSubject.name}</h2>
+            {selectedSubject.description && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">{selectedSubject.description}</p>
+            )}
+          </div>
+        </div>
+        
+        <TopicTree subjectId={selectedSubject.id} />
       </div>
     )
   }
@@ -150,14 +177,18 @@ export default function SubjectList() {
           {subjects.map((subject) => (
             <div
               key={subject.id}
-              className="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-200 flex flex-col h-full"
+              onClick={() => setSelectedSubject(subject)}
+              className="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-200 flex flex-col h-full cursor-pointer"
             >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate pr-4">
                   {subject.name}
                 </h3>
                 <button
-                  onClick={() => handleDelete(subject.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(subject.id);
+                  }}
                   className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                   title="Delete Subject"
                 >
